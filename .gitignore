@@ -8,3 +8,6 @@ Thumbs.db
 *~
 # Internal packaging docs (not for release)
 Publish_Packaging_Context.md
+fav-providers.lst
+whitelist-gws.lst
+build_install_package.sh
