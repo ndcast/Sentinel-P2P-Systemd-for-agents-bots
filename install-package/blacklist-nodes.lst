@@ -1,0 +1,7 @@
+# Sentinel dVPN — Node Blacklist
+# Nodes that failed with provider fault (WG tunnel did not come up post-connect)
+# Format: one sentnode... address per line
+# Lines starting with # are comments (also used for timestamped reason lines)
+#
+# This file is auto-managed by sentinel-connect.sh
+# Manual entries are also fine — just add addresses one per line

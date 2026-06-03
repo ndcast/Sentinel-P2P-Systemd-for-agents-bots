@@ -1,0 +1,21 @@
+[Unit]
+Description=Sentinel WireGuard State Monitor Daemon (v3)
+Documentation=https://github.com/openclaw/sentinel-dvpncli
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__RUNAS__
+WorkingDirectory=__HOMEDIR__
+ExecStart=__SCRIPTDIR__/sentinel-wg-monitord.sh
+Restart=always
+RestartSec=10
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

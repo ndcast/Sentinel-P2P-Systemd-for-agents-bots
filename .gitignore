@@ -1,0 +1,10 @@
+# Sentinel dVPN GitHub Package - .gitignore
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+# Internal packaging docs (not for release)
+Publish_Packaging_Context.md

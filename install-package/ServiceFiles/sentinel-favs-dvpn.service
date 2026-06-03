@@ -1,0 +1,22 @@
+[Unit]
+Description=Sentinel dVPN Full Auto Connect — Favorite Providers
+After=sentinel-wg-monitord.service
+Wants=sentinel-wg-monitord.service
+
+[Service]
+Type=simple
+User=__RUNAS__
+WorkingDirectory=__HOMEDIR__
+Environment=PATH=/usr/local/go/bin:__HOMEDIR__/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStartPre=__SCRIPTDIR__/sentinel-cancel-session.sh -a
+ExecStart=__SCRIPTDIR__/sentinel-connect.sh -f
+ExecStop=__SCRIPTDIR__/sentinel-disconnect.sh
+ExecStop=/bin/bash -c 'while read x; do sudo ip rule del priority $x || true; done < <(ip rule show | grep -v "from all lookup" | cut -d: -f1)'                                                                  
+
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
