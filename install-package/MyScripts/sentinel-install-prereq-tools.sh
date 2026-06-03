@@ -41,9 +41,29 @@ fi
 echo "[+] Installing WireGuard..."
 sudo apt install -y wireguard-tools wireguard resolvconf iptables
 
-echo "[+] Installing V2Ray..."
-bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) || \
-sudo apt install -y v2ray
+echo "[+] Installing/Updating Xray..."
+
+XRAY_VERSION=""
+if command -v xray &> /dev/null; then
+    XRAY_VERSION=$(xray version 2>/dev/null | head -1 | awk '{print $2}')
+    echo "   Current Xray version: $XRAY_VERSION"
+fi
+
+if [[ -z "$XRAY_VERSION" ]]; then
+    echo "   Xray not found — installing latest..."
+    bash <(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh) install
+else
+    echo "   Checking for Xray updates..."
+    bash <(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh) install
+fi
+
+# Verify installation
+if command -v xray &> /dev/null; then
+    echo "   Xray installed: $(xray version 2>/dev/null | head -1)"
+else
+    echo "   Warning: Xray installation may have failed. Falling back to apt v2ray..."
+    sudo apt install -y v2ray || echo "   Could not install v2ray either."
+fi
 
 echo "[+] Loading WireGuard kernel module..."
 sudo modprobe wireguard
@@ -62,7 +82,7 @@ sudo systemctl start resolvconf systemd-resolved 2>/dev/null || true
 echo "[+] Verifying installations..."
 echo "   Go:        $(go version 2>/dev/null | grep -oP 'go[\d.]+')"
 echo "   WireGuard: $(which wg-quick && wg-quick --version 2>/dev/null | head -1)"
-echo "   V2Ray:     $(which v2ray && v2ray version 2>/dev/null | head -1)"
+echo "   Xray:      $(which xray && xray version 2>/dev/null | head -1)"
 echo "   Expect:    $(which expect)"
 echo "   curl:      $(curl --version | head -1)"
 echo "   jq:        $(jq --version 2>/dev/null)"
