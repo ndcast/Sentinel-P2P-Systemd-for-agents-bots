@@ -51,15 +51,17 @@ fi
 
 if [[ -z "$XRAY_VERSION" ]]; then
     echo "   Xray not found — installing latest..."
-    bash <(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh) install
+    wget https://github.com/XTLS/Xray-install/raw/main/install-release.sh && sudo bash install-release.sh
+
 else
     echo "   Checking for Xray updates..."
-    bash <(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh) install
+    wget https://github.com/XTLS/Xray-install/raw/main/install-release.sh && sudo bash install-release.sh
 fi
 
 # Verify installation
 if command -v xray &> /dev/null; then
     echo "   Xray installed: $(xray version 2>/dev/null | head -1)"
+    rm -f install-release.sh
 else
     echo "   Warning: Xray installation may have failed. Falling back to apt v2ray..."
     sudo apt install -y v2ray || echo "   Could not install v2ray either."
