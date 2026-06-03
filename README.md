@@ -106,7 +106,7 @@ All scripts live in `~/sentinel-dvpncli/MyScripts/` after installation.
 | `sentinel-connect.sh` | `-f` | Main connect with retry + provider fault detection + auto blacklist |
 | `sentinel-disconnect.sh` | — | Clean WireGuard teardown + process cleanup (used by ExecStop=) |
 | `sentinel-wg-monitord.sh` | — | WG state monitor daemon (started via ExecStartPre, detects UP/DOWN for anti-lockout apply & cleanup) |
-| `sentinel-select-best-node.sh` | `-C` | Pick 1 random node from top 10 |
+| `sentinel-select-best-node.sh` | `-C` | Pick 1 random WireGuard node from top 10 out of 500 (default) |
 | `sentinel-best-nodes.sh` | `-C` | List top nodes |
 | `sentinel-auto-nodes.sh` | `-C` | Top 5 by downlink speed |
 | `sentinel-balance.sh` | — | Balance + explorer link |
