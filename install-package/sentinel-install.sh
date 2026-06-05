@@ -5,13 +5,16 @@
 
 set -euo pipefail
 
+CURRENT_HOME="$HOME"
+export CURRENT_HOME
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORK_DIR="${HOME}/sentinel-dvpncli"
+WORK_DIR="${CURRENT_HOME}/sentinel-dvpncli"
 BINARY_OK=false
 PASSPHRASE=""
 
@@ -116,15 +119,15 @@ bash "$WORK_DIR/MyScripts/sentinel-install-prereq-tools.sh"
 
 echo "   Creating script symlinks in \$HOME..."
 # Symlinks so systemd services can find scripts at /home/
-ln -sf "$WORK_DIR/MyScripts/sentinel-connect.sh" ~/sentinel-connect.sh
-ln -sf "$WORK_DIR/MyScripts/sentinel-select-best-node.sh" ~/sentinel-select-best-node.sh
-ln -sf "$WORK_DIR/MyScripts/sentinel-best-nodes.sh" ~/sentinel-best-nodes.sh
-ln -sf "$WORK_DIR/MyScripts/sentinel-balance.sh" ~/sentinel-balance.sh
-ln -sf "$WORK_DIR/sentinel-env.sh" ~/sentinel-env-helper.sh 2>/dev/null || true
-ln -sf "$WORK_DIR/MyScripts/sentinel-countdown.sh" ~/sentinel-countdown.sh
-ln -sf "$WORK_DIR/MyScripts/sentinel-ip-vpnbypass.sh" ~/sentinel-ip-vpnbypass.sh
-ln -sf "$WORK_DIR/fav-providers.lst" ~/fav-providers.lst
-ln -sf "$WORK_DIR/MyScripts/sentinel-disconnect.sh" ~/sentinel-disconnect.sh
+ln -sf "$WORK_DIR/MyScripts/sentinel-connect.sh" "${CURRENT_HOME}/sentinel-connect.sh"
+ln -sf "$WORK_DIR/MyScripts/sentinel-select-best-node.sh" "${CURRENT_HOME}/sentinel-select-best-node.sh"
+ln -sf "$WORK_DIR/MyScripts/sentinel-best-nodes.sh" "${CURRENT_HOME}/sentinel-best-nodes.sh"
+ln -sf "$WORK_DIR/MyScripts/sentinel-balance.sh" "${CURRENT_HOME}/sentinel-balance.sh"
+ln -sf "$WORK_DIR/sentinel-env.sh" "${CURRENT_HOME}/sentinel-env-helper.sh" 2>/dev/null || true
+ln -sf "$WORK_DIR/MyScripts/sentinel-countdown.sh" "${CURRENT_HOME}/sentinel-countdown.sh"
+ln -sf "$WORK_DIR/MyScripts/sentinel-ip-vpnbypass.sh" "${CURRENT_HOME}/sentinel-ip-vpnbypass.sh"
+ln -sf "$WORK_DIR/fav-providers.lst" "${CURRENT_HOME}/fav-providers.lst"
+ln -sf "$WORK_DIR/MyScripts/sentinel-disconnect.sh" "${CURRENT_HOME}/sentinel-disconnect.sh"
 
 echo "   Symlinks created ✅"
 echo ""
@@ -141,8 +144,8 @@ echo "   Building sentinel-dvpncli..."
 cd "$WORK_DIR"
 GOGC=50 go install -ldflags='-s -w -X github.com/sentinel-official/sentinel-go-sdk/version.Commit=4463e4caeb03b5ae6ad798075bec7eaff1bd77b9 -X github.com/sentinel-official/sentinel-go-sdk/version.Tag=4.0.0-59-g4463e4c' -tags=netgo . 2>&1 | tail -5
 
-if [[ -f "$HOME/go/bin/sentinel-dvpncli" ]]; then
-  sudo ln -sf "$HOME/go/bin/sentinel-dvpncli" /usr/local/bin/sentinel-dvpncli
+if [[ -f "${CURRENT_HOME}/go/bin/sentinel-dvpncli" ]]; then
+  sudo ln -sf "${CURRENT_HOME}/go/bin/sentinel-dvpncli" /usr/local/bin/sentinel-dvpncli
   BINARY_OK=true
   echo -e "${GREEN}   Binary built and installed${NC}"
 else
@@ -155,9 +158,6 @@ echo ""
 # Step 6: Install Systemd Services
 # ====================
 echo -e "${YELLOW}Step 6/8 — Installing Systemd Services${NC}"
-
-RUNAS=$(whoami)
-HOMEDIR=$HOME
 
 cd "$SCRIPT_DIR"
 sudo bash sentinel-install-services.sh
@@ -187,7 +187,7 @@ export PATH=/usr/local/go/bin:$PATH
 # Use expect with empty mnemonic (binary auto-generates)
 cat > /tmp/sentinel-key.exp << 'ENDOFFILE'
 set timeout 60
-spawn sentinel-dvpncli keys add main --keyring.backend test --home $env(HOME)/sentinel-dvpncli
+spawn sentinel-dvpncli keys add main --keyring.backend test --home "$env(CURRENT_HOME)/sentinel-dvpncli"
 expect {
   "Enter your BIP-39 mnemonic" { send "\r" }
   timeout { exit 1 }
