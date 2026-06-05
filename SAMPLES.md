@@ -128,3 +128,32 @@ user@admin-jumpbox:~$ curl ipinfo.io
  "country": "-",
  "org": "---- OVH SAS",
 ```
+## Example Successful Installation Output
+
+```
+========================================
+  INSTALLATION COMPLETE
+========================================
+
+ Address : sent1f4k34ddr3ssxz9ql3980q6d6ypuchhchjga
+
+ ACTION REQUIRED — FUND THIS ADDRESS
+
+ Send DVPN tokens to:
+  sent1f4k34ddr3ssxz9ql3980q6d6ypuchhchjga
+
+Remember to :
+- Add any additional IP you will SSH from to this file : ~/sentinel-dvpncli/whitelist-gws.lst
+- Edit ~/sentinel-dvpncli/.country_filter to change the allowed country list.
+
+ Once funded, test with:
+   export PATH=$PATH:~/go/bin
+   bash ~/sentinel-dvpncli/MyScripts/sentinel-balance.sh
+   bash ~/sentinel-dvpncli/MyScripts/sentinel-connect.sh
+
+ To enable systemd service:
+   sudo systemctl enable sentinel-dvpn.service
+   sudo systemctl start sentinel-dvpn.service
+```
+
+
