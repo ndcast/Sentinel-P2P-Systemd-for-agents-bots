@@ -185,7 +185,7 @@ echo -e "${YELLOW}Step 7/8 — Creating Wallet${NC}"
 export PATH=/usr/local/go/bin:$PATH
 
 # Use expect with empty mnemonic (binary auto-generates)
-cat > /tmp/sentinel-key.exp << 'ENDOFFILE'
+cat > "${WORK_DIR}/sentinel-key.exp" << 'ENDOFFILE'
 set timeout 60
 spawn sentinel-dvpncli keys add main --keyring.backend test --home "$env(CURRENT_HOME)/sentinel-dvpncli"
 expect {
@@ -207,12 +207,12 @@ expect {
 expect eof
 ENDOFFILE
 
-PASSPHRASE="$PASSPHRASE" expect /tmp/sentinel-key.exp > /tmp/sentinel-key.out 2>&1 || true
-cat /tmp/sentinel-key.out
+PASSPHRASE="$PASSPHRASE" expect "${WORK_DIR}/sentinel-key.exp" > "${WORK_DIR}/sentinel-key.out" 2>&1 || true
+cat "${WORK_DIR}/sentinel-key.out"
 
 # Extract address and mnemonic from output
-ADDRESS=$(grep -oE 'address: sent1[a-z0-9]+' /tmp/sentinel-key.out | awk '{print $2}' | head -1)
-MNEMONIC=$(grep -oE '([a-z]+[[:space:]]+){23}[a-z]+' /tmp/sentinel-key.out | tail -1 | xargs)
+ADDRESS=$(grep -oE 'address: sent1[a-z0-9]+' "${WORK_DIR}/sentinel-key.out" | awk '{print $2}' | head -1)
+MNEMONIC=$(grep -oE '([a-z]+[[:space:]]+){23}[a-z]+' "${WORK_DIR}/sentinel-key.out" | tail -1 | xargs)
 
 if [[ -z "$ADDRESS" ]]; then
   echo -e "${RED}   Wallet creation failed — address not found${NC}"
@@ -233,11 +233,11 @@ fi
 # Import into test keyring (for systemd non-interactive use)
 echo "   Importing mnemonic into test keyring..."
 if [[ -f "$WORK_DIR/dvpn-key-import.exp" ]]; then
-  expect "$WORK_DIR/dvpn-key-import.exp" > /tmp/key-import.out 2>&1 || true
-  if grep -q "address:" /tmp/key-import.out 2>/dev/null; then
+  expect "$WORK_DIR/dvpn-key-import.exp" > "${WORK_DIR}/key-import.out" 2>&1 || true
+  if grep -q "address:" "${WORK_DIR}/key-import.out" 2>/dev/null; then
     echo -e "${GREEN}   Test keyring import OK${NC}"
   else
-    echo -e "${YELLOW}   Test keyring import: check /tmp/key-import.out${NC}"
+    echo -e "${YELLOW}   Test keyring import: check ${WORK_DIR}/key-import.out${NC}"
   fi
 else
   echo -e "${YELLOW}   dvpn-key-import.exp not found — skipping test keyring import${NC}"
@@ -269,3 +269,8 @@ echo "    sudo systemctl enable sentinel-dvpn.service"
 echo "    sudo systemctl start sentinel-dvpn.service"
 echo ""
 echo "========================================${NC}"
+
+# ====================
+# Cleanup: remove temp files with secrets
+# ====================
+rm -f "${WORK_DIR}/sentinel-key.exp" "${WORK_DIR}/sentinel-key.out" "${WORK_DIR}/key-import.out"
