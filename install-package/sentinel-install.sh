@@ -203,10 +203,7 @@ fi
 
 # Replace entire whitelist content (remove any template)
 if [ ${#CURRENT_IPS[@]} -gt 0 ]; then
-    : > "$WHITELIST_FILE"
-    for ip in "${!CURRENT_IPS[@]}"; do
-        echo "$ip" >> "$WHITELIST_FILE"
-    done
+    printf "%s\n" "${!CURRENT_IPS[@]}" | sudo tee "$WHITELIST_FILE" > /dev/null
     echo -e "${GREEN}   whitelist-gws.lst updated with current SSH IP(s) — template content replaced${NC}"
 else
     echo -e "${YELLOW}   No SSH IP detected — keeping existing whitelist${NC}"
