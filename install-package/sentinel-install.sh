@@ -178,6 +178,42 @@ echo -e "${GREEN}   Config files copied${NC}"
 echo ""
 
 # ====================
+# Step 6.6: Detect current SSH IP (port 22) and replace whitelist-gws.lst template content
+# ====================
+echo -e "${YELLOW}Step 6.6/8 — Detecting current SSH IP for whitelist${NC}"
+
+WHITELIST_FILE="$WORK_DIR/whitelist-gws.lst"
+declare -A CURRENT_IPS=()
+
+# Detect current SSH source IPs on port 22 (same logic as sentinel-ip-vpnbypass.sh)
+mapfile -t SSH_SRC < <(ss -Htn state established '( sport = :22 )' 2>/dev/null \
+    | awk '{print $5}' \
+    | cut -d: -f1 \
+    | grep -E '^[0-9]{1,3}(\.[0-9]{1,3}){3}$')
+
+for ip in "${SSH_SRC[@]}"; do
+    CURRENT_IPS["$ip"]=1
+done
+
+# Fallback to primary interface IP if nothing detected
+if [ ${#CURRENT_IPS[@]} -eq 0 ]; then
+    LOCAL_IP=$(ip -4 route get 8.8.8.8 2>/dev/null | awk '{print $7}' | head -n1)
+    [[ -n "$LOCAL_IP" ]] && CURRENT_IPS["$LOCAL_IP"]=1
+fi
+
+# Replace entire whitelist content (remove any template)
+if [ ${#CURRENT_IPS[@]} -gt 0 ]; then
+    : > "$WHITELIST_FILE"
+    for ip in "${!CURRENT_IPS[@]}"; do
+        echo "$ip" >> "$WHITELIST_FILE"
+    done
+    echo -e "${GREEN}   whitelist-gws.lst updated with current SSH IP(s) — template content replaced${NC}"
+else
+    echo -e "${YELLOW}   No SSH IP detected — keeping existing whitelist${NC}"
+fi
+echo ""
+
+# ====================
 # Step 7: Create Wallet + Import into Test Keyring
 # ====================
 echo -e "${YELLOW}Step 7/8 — Creating Wallet${NC}"
@@ -258,6 +294,10 @@ echo -e "${YELLOW}  ACTION REQUIRED — FUND THIS ADDRESS${NC}"
 echo ""
 echo "  Send DVPN tokens to:"
 echo -e "  ${GREEN}$ADDRESS${NC}"
+echo ""
+echo "Remember to :"
+echo "- Add any additional IP you will SSH from to this file : ~/sentinel-dvpncli/whitelist-gws.lst"
+echo "- Edit ~/sentinel-dvpncli/.country_filter to change the allowed country list."
 echo ""
 echo "  Once funded, test with:"
 echo "    export PATH=\$PATH:~/go/bin"
