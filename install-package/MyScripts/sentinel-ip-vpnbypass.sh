@@ -45,10 +45,7 @@ fi
 
 # Detect current SSH source IPs
 echo "Detecting active SSH connections..."
-mapfile -t SSH_SRC < <(ss -Htn state established '( sport = :22 )' 2>/dev/null \
-    | awk '{print $5}' \
-    | cut -d: -f1 \
-    | grep -E '^[0-9]{1,3}(\.[0-9]{1,3}){3}$')
+mapfile -t SSH_SRC < <(ss -Htn state established '( sport = :22 )' | awk '{print $4}' | cut -d: -f1 | sort -u)
 
 for ip in "${SSH_SRC[@]}"; do
     add_ip "$ip"
